@@ -26,3 +26,35 @@ class DelayLoaderComponent extends HTMLElement {
         }
     }
 }
+class DelayLoader {
+    constructor() {
+        this.value = 0
+        this.stopped = false
+    }
+    draw(context,x,y,r,color) {
+        context.strokeStyle = color
+        context.save()
+        context.translate(x,y)
+        context.beginPath()
+        for(var i=this.value;i<=360;i++) {
+            const x = r*Math.cos(i*Math.PI/180),y = r*Math.sin(i*Math.PI/180)
+            if(i == this.value) {
+                context.moveTo(x,y)
+            }
+            else {
+                context.lineTo(x,y)
+            }
+        }
+        context.stroke()
+        context.restore()
+    }
+    update() {
+        this.value += 10
+        if(this.value >= 360) {
+            this.stopped = true
+        }
+    }
+    stopped() {
+        return this.stopped
+    }
+}
