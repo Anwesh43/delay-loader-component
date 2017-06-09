@@ -25,7 +25,7 @@ class DelayLoaderComponent extends HTMLElement {
         }
         context.drawImage(this.image,0,0)
         context.restore()
-        this.delayLoader.draw(context,w/2,h/2,Math.min())
+        this.delayLoader.draw(context,w/2,h/2,Math.min(w,h)/3,this.color)
         this.img.src = canvas.toDataURL()
 
     }
@@ -35,6 +35,7 @@ class DelayLoaderComponent extends HTMLElement {
         this.image.onload = () =>{
             this.render()
             const interval = setInterval(()=>{
+                this.render()
                 this.delayLoader.update()
                 if(this.delayLoader.stop()  == true) {
                     clearInterval(interval)
@@ -50,12 +51,13 @@ class DelayLoader {
         this.stopped = false
     }
     draw(context,x,y,r,color) {
+        context.lineWidth = r/10
         context.strokeStyle = color
         context.save()
         context.translate(x,y)
         context.beginPath()
         for(var i=this.value;i<=360;i++) {
-            const x = r*Math.cos(i*Math.PI/180),y = r*Math.sin(i*Math.PI/180)
+            const x = r*Math.cos((i-90)*Math.PI/180),y = r*Math.sin((i-90)*Math.PI/180)
             if(i == this.value) {
                 context.moveTo(x,y)
             }
@@ -67,7 +69,6 @@ class DelayLoader {
         context.restore()
     }
     update() {
-        console.log(this.value)
         this.value += 10
         if(this.value >= 360) {
             this.stopped = true
