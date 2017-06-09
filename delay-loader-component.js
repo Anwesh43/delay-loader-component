@@ -1,28 +1,42 @@
 class DelayLoaderComponent extends HTMLElement {
     constructor() {
         super()
-        this.delay = this.getAttribute('delay')
+        this.delay = this.getAttribute('delay') || 100
         this.color = this.getAttribute('color')
         this.src = this.getAttribute('src')
         const shadow = this.attachShadow({mode:'open'})
         this.img = document.createElement('img')
         shadow.appendChild(img)
+        this.delayLoader = new DelayLoader()
+        if(this.delay == 0) {
+            this.delay = 100
+        }
     }
     render() {
         const canvas = document.createElement('canvas')
         canvas.width = this.image.width
         canvas.height = this.image.height
+        w = canvas.width
+        h = canvas.height
         const context = canvas.getContext('2d')
         context.save()
         context.globalAlpha = 0.4
         context.drawImage(this.image,0,0)
         context.restore()
+        this.delayLoader.draw(context,w/2,h/2,Math.min())
         this.img.src = canvas.toDataURL()
+
     }
     connectedCallback() {
         this.image = new Image()
         this.image.onload = () =>{
             this.render()
+            const interval = setInterval(()=>{
+                this.delayLoader.update()
+                if(this.delayLoader.stopped()  == true) {
+                    clearInterval(interval)
+                }
+            },this.delay/36)
         }
     }
 }
@@ -58,3 +72,4 @@ class DelayLoader {
         return this.stopped
     }
 }
+customElements.define('delay-loader',DelayLoaderComponent)
