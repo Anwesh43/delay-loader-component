@@ -1,12 +1,12 @@
 class DelayLoaderComponent extends HTMLElement {
     constructor() {
         super()
-        this.delay = this.getAttribute('delay') || 100
+        this.delay = this.getAttribute('delay') || 1000
         this.color = this.getAttribute('color')
         this.src = this.getAttribute('src')
         const shadow = this.attachShadow({mode:'open'})
         this.img = document.createElement('img')
-        shadow.appendChild(img)
+        shadow.appendChild(this.img)
         this.delayLoader = new DelayLoader()
         if(this.delay == 0) {
             this.delay = 100
@@ -16,11 +16,13 @@ class DelayLoaderComponent extends HTMLElement {
         const canvas = document.createElement('canvas')
         canvas.width = this.image.width
         canvas.height = this.image.height
-        w = canvas.width
-        h = canvas.height
+        const w = canvas.width
+        const h = canvas.height
         const context = canvas.getContext('2d')
         context.save()
-        context.globalAlpha = 0.4
+        if(this.delayLoader.stop() == false) {
+            context.globalAlpha = 0.4
+        }
         context.drawImage(this.image,0,0)
         context.restore()
         this.delayLoader.draw(context,w/2,h/2,Math.min())
@@ -29,12 +31,14 @@ class DelayLoaderComponent extends HTMLElement {
     }
     connectedCallback() {
         this.image = new Image()
+        this.image.src = this.src
         this.image.onload = () =>{
             this.render()
             const interval = setInterval(()=>{
                 this.delayLoader.update()
-                if(this.delayLoader.stopped()  == true) {
+                if(this.delayLoader.stop()  == true) {
                     clearInterval(interval)
+                    this.render()
                 }
             },this.delay/36)
         }
@@ -63,12 +67,13 @@ class DelayLoader {
         context.restore()
     }
     update() {
+        console.log(this.value)
         this.value += 10
         if(this.value >= 360) {
             this.stopped = true
         }
     }
-    stopped() {
+    stop() {
         return this.stopped
     }
 }
